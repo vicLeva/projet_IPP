@@ -1,16 +1,16 @@
 import re
 
 def read_interaction_file_dict(filename):
-    dic = dict()
+    interaction_dict = dict()
     with open(filename) as content:
         content.readline() #skip 1st line
         for line in content.readlines():
             split = re.split(' |\t', line.rstrip())
-            if split[0] in dic:
-                dic[split[0]].append(split[1])
+            if split[0] in interaction_dict:
+                interaction_dict[split[0]].append(split[1])
             else:
-                dic[split[0]] = [split[1]]
-    return dic
+                interaction_dict[split[0]] = [split[1]]
+    return interaction_dict
 
 def read_interaction_file_list(filename):
     with open(filename) as content:
