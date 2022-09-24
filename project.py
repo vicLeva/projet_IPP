@@ -1,4 +1,6 @@
 import re
+import numpy as np
+import time
 
 def read_interaction_file_dict(filename):
     interaction_dict = dict()
@@ -23,5 +25,31 @@ def read_interaction_file_list(filename):
        
     return interaction_list
 
-print(read_interaction_file_list("toy_example.txt"))
+#print(read_interaction_file_dict("bs2/projet_IPP/toy_example.txt"))
 #print(read_interaction_file_dict("Human_HighQuality.txt"))
+
+def read_interaction_file_mat(filename):
+    nodes_list = set() #to avoid duplicates
+    with open(filename) as content:
+        content.readline() #skip 1st line
+        for line in content.readlines(): 
+            nodes_list.update(re.split(' |\t', line.rstrip()))
+    
+    nodes_list = list(nodes_list)
+    inters_list = read_interaction_file_list(filename)
+    size = len(nodes_list)
+
+    matrix = np.zeros((size, size),dtype=int)
+
+    for i, j in inters_list:
+        idx1 = nodes_list.index(i)
+        idx2 = nodes_list.index(j)
+        matrix[idx1, idx2] = 1
+        matrix[idx2, idx1] = 1
+
+    return matrix
+
+
+start_time = time.time()
+print(read_interaction_file_mat("bs2/projet_IPP/Human_HighQuality.txt"))
+print("--- %s seconds ---" % (time.time() - start_time))
