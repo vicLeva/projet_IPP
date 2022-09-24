@@ -17,33 +17,33 @@ def read_interaction_file_dict(filename):
     interactions = {}
     
     #opening file
-    csvfile = open(filename, 'r')
-    #finding the delimiter (from line 2)
-    next(csvfile)
-    dialect = csv.Sniffer().sniff(csvfile.readline())
-    #return at the top of the file
-    csvfile.seek(0)
+    with open(filename, 'r') as csvfile:
+        #finding the delimiter (from line 2)
+        next(csvfile)
+        dialect = csv.Sniffer().sniff(csvfile.readline())
+        #return at the top of the file
+        csvfile.seek(0)
 
-    #reading the file as a csv and skip the first line
-    graph = csv.reader(csvfile, delimiter=dialect.delimiter)
-    next(graph)
+        #reading the file as a csv and skip the first line
+        graph = csv.reader(csvfile, delimiter=dialect.delimiter)
+        next(graph)
 
-    for line in graph:
-        if line[0] or line[1] not in interactions.keys():
-            interactions[line[0]] = []
-            interactions[line[1]] = []
+        for line in graph:
+            if line[0] or line[1] not in interactions.keys():
+                interactions[line[0]] = []
+                interactions[line[1]] = []
 
-    
-    #return at the top of the csv file and skip first line again
-    csvfile.seek(0)
-    next(graph)
+        
+        #return at the top of the csv file and skip first line again
+        csvfile.seek(0)
+        next(graph)
 
-    #fill the lists
-    for line in graph:
-        if line[1] not in interactions[line[0]]:
-            interactions[line[0]].append(line[1])
-        if line[0] not in interactions[line[1]]:
-            interactions[line[1]].append(line[0])
+        #fill the lists
+        for line in graph:
+            if line[1] not in interactions[line[0]]:
+                interactions[line[0]].append(line[1])
+            if line[0] not in interactions[line[1]]:
+                interactions[line[1]].append(line[0])
 
     return interactions
 
@@ -57,20 +57,20 @@ def read_interaction_file_list(filename):
     interactions = []
 
     #opening file
-    csvfile = open(filename, 'r')
-    next(csvfile)
-    dialect = csv.Sniffer().sniff(csvfile.readline())
-    csvfile.seek(0)
+    with open(filename, 'r') as csvfile:
+        next(csvfile)
+        dialect = csv.Sniffer().sniff(csvfile.readline())
+        csvfile.seek(0)
 
-    #reading the file as a csv
-    graph = csv.reader(csvfile, delimiter=dialect.delimiter)
-    next(graph)
+        #reading the file as a csv
+        graph = csv.reader(csvfile, delimiter=dialect.delimiter)
+        next(graph)
 
-    #make tuples and putting them into a list
-    for line in graph:
-        couple = (line[0], line[1])
-        interactions.append(couple)
-    
+        #make tuples and putting them into a list
+        for line in graph:
+            couple = (line[0], line[1])
+            interactions.append(couple)
+        
     return interactions
 
 #read_interaction_file_list("toy_example.txt")
@@ -139,6 +139,18 @@ def count_edges(filename):
 
 
 #2.1.3
-def clean_interactome(filein, fileout):œ
+def clean_interactome(filein, fileout):
     graph = read_interaction_file_list(filein)
-    with open ()
+    for inter in graph :
+        if (inter[1], inter[0]) in graph or inter[0] != inter[1]:
+            graph.remove(inter)
+    
+    with open(fileout, "w") as handle:
+        handle.write(str(len(graph)) + "\n")
+        for inter in graph:
+            handle.write(inter[0] + " " + inter[1] + "\n")
+    
+    return fileout
+
+clean_interactome("Human_HighQuality.txt", "fileout_test.txt")
+
