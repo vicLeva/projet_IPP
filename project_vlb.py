@@ -142,7 +142,7 @@ def count_edges(filename):
 def clean_interactome(filein, fileout):
     graph = read_interaction_file_list(filein)
     for inter in graph :
-        if (inter[1], inter[0]) in graph or inter[0] != inter[1]:
+        if (inter[1], inter[0]) in graph or inter[0] == inter[1]:
             graph.remove(inter)
     
     with open(fileout, "w") as handle:
@@ -152,5 +152,5 @@ def clean_interactome(filein, fileout):
     
     return fileout
 
-clean_interactome("Human_HighQuality.txt", "fileout_test.txt")
+#clean_interactome("Human_HighQuality.txt", "fileout_test.txt")
 
