@@ -90,7 +90,7 @@ def clean_interactome(filein, fileout):
         content.readline() #skip 1st line
         for line in content.readlines():
             split = re.split(' |\t', line.rstrip())
-            if (split[1], split[0]) not in interaction_list or split[1] != split[0]:
+            if (split[1], split[0]) not in interaction_list and split[1] != split[0]:
                 interaction_list.append(tuple(split))
     
     write_interaction_file_list(interaction_list, fileout)
