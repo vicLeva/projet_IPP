@@ -47,9 +47,9 @@ def read_interaction_file_mat(filename):
         matrix[idx1, idx2] = 1
         matrix[idx2, idx1] = 1
 
-    return matrix
+    return (matrix, nodes_list)
 
 
 start_time = time.time()
-print(read_interaction_file_mat("bs2/projet_IPP/Human_HighQuality.txt"))
+print(read_interaction_file_mat("Human_HighQuality.txt"))
 print("--- %s seconds ---" % (time.time() - start_time))
