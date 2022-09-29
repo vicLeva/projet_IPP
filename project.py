@@ -12,7 +12,7 @@ def read_interaction_file_dict(filename):
     Return a dictionnary containing with nodes as keys and interacting nodes as values
 
     Args:
-        filename (.txt): an interaction network file with the number of interaction on the first line and two interacting nodes on each next line
+        filename: an interaction network file with the number of interaction on the first line and two interacting nodes on each next line
 
     Returns:
         interaction_dict (dict): a dictionnary containing nodes as key and interacting nodes as values
@@ -41,7 +41,7 @@ def read_interaction_file_list(filename):
     Return a list containing couple of interacting nodes in tuples
 
     Args:
-        filename (.txt): an interaction network file with the number of interaction on the first line and two interacting nodes on each next line
+        filename: an interaction network file with the number of interaction on the first line and two interacting nodes on each next line
 
     Returns:
         interaction_list (list): a list containing couples of interacting nodes in tuples
@@ -66,7 +66,7 @@ def read_interaction_file_mat(filename):
     Return an adjacency matrix of interactions and the ordonnate list of nodes to read it
 
     Args:
-        filename (.txt): an interaction network file with the number of interaction on the first line and two interacting nodes on each next line
+        filename: an interaction network file with the number of interaction on the first line and two interacting nodes on each next line
 
     Returns:
         matrix (numpy array): a adjacency matrix : 0 for non-interacting nodes, 1 for interacting nodes
@@ -98,7 +98,7 @@ def read_interaction_file(filename):
     Return the dictionnary, the list, the matrix and the ordonnate list to read it
 
     Args:
-        filename (.txt): an interaction network file with the number of interaction on the first line and two interacting nodes on each next line
+        filename: an interaction network file with the number of interaction on the first line and two interacting nodes on each next line
 
     Returns:
         interaction_dict (dict): a dictionnary containing nodes as key and interacting nodes as values
@@ -120,6 +120,18 @@ def read_interaction_file(filename):
 
 #1.2.7
 def is_interaction_file(filename):
+    """Reads a file and verify if it is an interaction network file
+
+    Args:
+        filename: a file
+
+    Raises:
+        OSError: raises error if the path to the file is wrong or the file does not exist
+
+    Returns:
+        True if the file is an interaction network file
+        else False
+    """
     if not os.path.isfile(filename):
         raise OSError("Wrong path or file missing.")
     else:
@@ -150,7 +162,7 @@ def count_vertices(filename):
     Return the number of vertices in the interaction network
 
     Args:
-        filename (.txt): an interaction network file with the number of interaction on the first line and two interacting nodes on each next line
+        filename: an interaction network file with the number of interaction on the first line and two interacting nodes on each next line
 
     Returns:
         the number of vertices (nodes) described in the input file
@@ -163,7 +175,7 @@ def count_edges(filename):
     Return the number of edges in the interaction network
 
     Args:
-        filename (.txt): an interaction network file with the number of interaction on the first line and two interacting nodes on each next line
+        filename: an interaction network file with the number of interaction on the first line and two interacting nodes on each next line
 
     Returns:
         the number of edges (interactions) described in the input file
@@ -177,10 +189,10 @@ def write_interaction_file_from_list(interactions_list, fileout):
 
     Args:
         interaction_list (list): an interaction network file with the number of interaction on the first line and two interacting nodes on each next line
-        fileout (.txt) : an output file
+        fileout : an output file
 
     Returns:
-        fileout (.txt) : an interaction network file
+        fileout : an interaction network file
     """
     with open(fileout, "w") as handle:
         handle.write(str(len(interactions_list)) + "\n")
@@ -192,11 +204,11 @@ def clean_interactome(filein, fileout):
     Return a cleaned interaction network file without redundant interactions and homodimers
 
     Args:
-        filein (.txt): an interaction network file with the number of interaction on the first line and two interacting nodes on each next line
-        fileout (.txt) : an output file
+        filein: an interaction network file with the number of interaction on the first line and two interacting nodes on each next line
+        fileout : an output file
 
     Returns:
-        fileout (.txt) : a cleaned interaction network file without redundant interactions and homodimers
+        fileout : a cleaned interaction network file without redundant interactions and homodimers
     """
     with open(filein) as content:
         interaction_list = list()
