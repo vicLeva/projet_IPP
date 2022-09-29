@@ -1,6 +1,10 @@
 import re
 import numpy as np
 import time
+import os.path
+
+
+SEP = ' |\t' #Separator = space or tab.
 
 #1.2.1
 def read_interaction_file_dict(filename):
@@ -16,20 +20,20 @@ def read_interaction_file_dict(filename):
     interaction_dict = dict()
     with open(filename) as content:
         content.readline() #skip 1st line
-        for line in content.readlines():
-            split = re.split(' |\t', line.rstrip())
+        for line in content:
+            split = re.split(SEP, line.rstrip())
 
             if split[0] in interaction_dict: #X Y CASE
-                interaction_dict[split[0]].append(split[1])
+                interaction_dict[split[0]].add(split[1])
             else:
-                interaction_dict[split[0]] = [split[1]]
+                interaction_dict[split[0]] = {split[1]}
 
             if split[1] in interaction_dict: #Y X CASE
-                interaction_dict[split[1]].append(split[0])
+                interaction_dict[split[1]].add(split[0])
             else:
-                interaction_dict[split[1]] = [split[0]]
-
+                interaction_dict[split[1]] = {split[0]}
     return interaction_dict
+
 
 #1.2.2
 def read_interaction_file_list(filename):
@@ -43,10 +47,14 @@ def read_interaction_file_list(filename):
         interaction_list (list): a list containing couples of interacting nodes in tuples
     """
     with open(filename) as content:
-        interaction_list = [0] * int(content.readline())
+        try: #empty file case
+            interaction_list = [0] * int(content.readline().rstrip())
+        except ValueError:
+            return list()
+            
         index = 0
-        for line in content.readlines():
-            split = re.split(' |\t', line.rstrip())
+        for line in content:
+            split = re.split(SEP, line.rstrip())
             interaction_list[index] = tuple(split)
             index += 1
        
@@ -67,8 +75,8 @@ def read_interaction_file_mat(filename):
     nodes_list = set() #to avoid duplicates
     with open(filename) as content:
         content.readline() #skip 1st line
-        for line in content.readlines(): 
-            nodes_list.update(re.split(' |\t', line.rstrip()))
+        for line in content: 
+            nodes_list.update(re.split(SEP, line.rstrip()))
     
     nodes_list = list(nodes_list)
     inters_list = read_interaction_file_list(filename)
@@ -110,6 +118,32 @@ def read_interaction_file(filename):
 #seule fois en créant le dict, la list et la matrice au fur et à mesure de cette
 #seule lecture.
 
+#1.2.7
+def is_interaction_file(filename):
+    if not os.path.isfile(filename):
+        raise OSError("Wrong path or file missing.")
+    else:
+        if os.stat(filename).st_size == 0: return False #empty file
+
+        count = 0
+        with open(filename) as content:
+            first_line = content.readline().rstrip()
+            try: 
+                nb_interactions = int(first_line)
+            except ValueError: #first line missing or wrong format
+                return False
+            
+            for line in content:
+                split = re.split(SEP, line.rstrip())
+                if len(split) != 2:
+                    return False #wrong number of columns
+                count += 1
+            
+            if count != nb_interactions: return False #wrong number in first line
+
+        return True
+
+
 #2.1.1
 def count_vertices(filename):
     """Reads a file of interaction network
@@ -137,7 +171,7 @@ def count_edges(filename):
     return len(read_interaction_file_list(filename))
 
 #2.1.3
-def write_interaction_file_list(interactions_list, fileout):
+def write_interaction_file_from_list(interactions_list, fileout):
     """Reads a list of interactions
     Return an interaction network file
 
@@ -151,7 +185,7 @@ def write_interaction_file_list(interactions_list, fileout):
     with open(fileout, "w") as handle:
         handle.write(str(len(interactions_list)) + "\n")
         for inter in interactions_list:
-            handle.write(inter[0] + " " + inter[1] + "\n")
+            handle.write(inter[0] + "\t" + inter[1] + "\n")
 
 def clean_interactome(filein, fileout):
     """Reads a file of interaction network
@@ -168,13 +202,15 @@ def clean_interactome(filein, fileout):
         interaction_list = list()
         content.readline() #skip 1st line
         for line in content.readlines():
-            split = re.split(' |\t', line.rstrip())
+            split = re.split(SEP, line.rstrip())
             if (split[1], split[0]) not in interaction_list and split[1] != split[0]:
                 interaction_list.append(tuple(split))
     
-    write_interaction_file_list(interaction_list, fileout)
+    write_interaction_file_from_list(interaction_list, fileout)
 
 
-#start_time = time.time()
-#clean_interactome("bs2/projet_IPP/Human_HighQuality.txt", "bs2/projet_IPP/Human_HighQualityOut.txt")
-#print("--- %s seconds ---" % (time.time() - start_time))
+if __name__ == "__main__":
+    pass
+    #start_time = time.time()
+    #clean_interactome("bs2/projet_IPP/Human_HighQuality.txt", "bs2/projet_IPP/Human_HighQualityOut.txt")
+    #print("--- %s seconds ---" % (time.time() - start_time))
