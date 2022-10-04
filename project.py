@@ -190,10 +190,10 @@ def write_interaction_file_from_list(interactions_list, fileout):
 
     Args:
         interaction_list (list): an interaction network file with the number of interaction on the first line and two interacting nodes on each next line
-        fileout : an output file
+        fileout: an output file
 
     Returns:
-        fileout : an interaction network file
+        fileout: an interaction network file
     """
     with open(fileout, "w") as handle:
         handle.write(str(len(interactions_list)) + "\n")
@@ -206,10 +206,10 @@ def clean_interactome(filein, fileout):
 
     Args:
         filein: an interaction network file with the number of interaction on the first line and two interacting nodes on each next line
-        fileout : an output file
+        fileout: an output file
 
     Returns:
-        fileout : a cleaned interaction network file without redundant interactions and homodimers
+        fileout: a cleaned interaction network file without redundant interactions and homodimers
     """
     with open(filein) as content:
         interaction_list = list()
@@ -223,10 +223,27 @@ def clean_interactome(filein, fileout):
 
 #2.2.1
 def get_degree(file, prot):
+    """Reads a file of interaction network and return the degree of a protein
+
+    Args:
+        file: an interaction network file with the number of interaction on the first line and two interacting nodes on each next line
+        prot (str): the protein for which we are looking for the degree
+
+    Returns:
+        the degree of the protein
+    """
     return len(read_interaction_file_dict(file)[prot])
 
 #2.2.2
 def get_max_degree(file):
+    """Reads a file of interaction network and return the protein(s) with the maximum degree
+
+    Args:
+        file: an interaction network file with the number of interaction on the first line and two interacting nodes on each next line
+
+    Returns:
+        the protein(s) with the highest degree in the file
+    """
     interaction_dict = read_interaction_file_dict(file)
     max_degree = max(len(int_list) for int_list in interaction_dict.values())
     return [prot for prot, int_list in interaction_dict.items() if len(int_list)==max_degree], \
@@ -234,16 +251,43 @@ def get_max_degree(file):
 
 #2.2.3
 def get_ave_degree(file):
+    """Reads a file of interaction network and return the average degree of the proteins
+
+    Args:
+        file: an interaction network file with the number of interaction on the first line and two interacting nodes on each next line
+
+    Returns:
+        the average degree of the proteins in the file
+    """
     ints_dict = read_interaction_file_dict(file)
     return sum(len(int_list) for int_list in ints_dict.values()) / len(ints_dict)
 
 #2.2.4
 def count_degree(file, deg):
+    """Reads a file of interaction network and return the number of proteins with a degree equals to deg
+
+    Args:
+        file: an interaction network file with the number of interaction on the first line and two interacting nodes on each next line
+        deg (int): the degree we are looking for in the file
+
+    Returns:
+        the number of protein(s) in the file which have a degree equals to deg
+    """
     ints_dict = read_interaction_file_dict(file)
     return sum(1 for prot in ints_dict if len(ints_dict[prot]) == deg)
 
 #2.2.5
 def histogram_degree(file, dmin, dmax):
+    """Reads a file of interaction network and print for each value i between the interval (dmin, dmax) the number of protein in the file with a degree equals to i
+
+    Args:
+        file: an interaction network file with the number of interaction on the first line and two interacting nodes on each next line
+        dmin (int): the lower bound of the interval
+        dmax (int): the upper bound of the interval
+
+    Prints:
+        the number of protein with a degree equals to i for each value i between the interval (dmin, dmax)
+    """
     for i in range(dmin, dmax+1):
         print(i, "*"*count_degree(file, i))
 
