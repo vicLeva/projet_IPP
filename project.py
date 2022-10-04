@@ -22,6 +22,7 @@ def read_interaction_file_dict(filename):
         content.readline() #skip 1st line
         for line in content:
             split = re.split(SEP, line.rstrip())
+            if split[0] == split[1]: continue #X X CASE
 
             if split[0] in interaction_dict: #X Y CASE
                 interaction_dict[split[0]].add(split[1])
@@ -220,9 +221,35 @@ def clean_interactome(filein, fileout):
     
     write_interaction_file_from_list(interaction_list, fileout)
 
+#2.2.1
+def get_degree(file, prot):
+    return len(read_interaction_file_dict(file)[prot])
+
+#2.2.2
+def get_max_degree(file):
+    interaction_dict = read_interaction_file_dict(file)
+    max_degree = max(len(int_list) for int_list in interaction_dict.values())
+    return [prot for prot, int_list in interaction_dict.items() if len(int_list)==max_degree], \
+           max_degree
+
+#2.2.3
+def get_ave_degree(file):
+    ints_dict = read_interaction_file_dict(file)
+    return sum(len(int_list) for int_list in ints_dict.values()) / len(ints_dict)
+
+#2.2.4
+def count_degree(file, deg):
+    ints_dict = read_interaction_file_dict(file)
+    return sum(1 for prot in ints_dict if len(ints_dict[prot]) == deg)
+
+#2.2.5
+def histogram_degree(file, dmin, dmax):
+    for i in range(dmin, dmax+1):
+        print(i, "*"*count_degree(file, i))
+
 
 if __name__ == "__main__":
-    pass
+    print(histogram_degree("bs2/projet_IPP/toy_example.txt", 1, 3))
     #start_time = time.time()
     #clean_interactome("bs2/projet_IPP/Human_HighQuality.txt", "bs2/projet_IPP/Human_HighQualityOut.txt")
     #print("--- %s seconds ---" % (time.time() - start_time))
