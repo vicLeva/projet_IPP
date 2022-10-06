@@ -292,6 +292,10 @@ def histogram_degree(file, dmin, dmax):
         print(i, "*"*count_degree(file, i))
 
 
+#3.1.1
+#In the histogram_degree function, the file is read dmax - dmin times (one time in each loop iteration)
+
+
 if __name__ == "__main__":
     print(histogram_degree("bs2/projet_IPP/toy_example.txt", 1, 3))
     #start_time = time.time()
