@@ -295,9 +295,85 @@ def histogram_degree(file, dmin, dmax):
 #3.1.1
 #In the histogram_degree function, the file is read dmax - dmin times (one time in each loop iteration)
 
+#3.2.2
+class Interactome:
+    #implement is_interaction_file before the constructor to see if the file is good to work with ?
+    
+    #constructor
+    def __init__(self, file):
+        self.int_list = read_interaction_file_list(file)
+        self.int_dict = read_interaction_file_dict(file)
+        self.proteins = []
+        for prot in self.int_dict.keys():
+            self.proteins.append(prot)
+    
+    #setters and getters
+    def set_int_list(self, new_list):
+        self.int_list = new_list
+    def set_int_dict(self, new_dict):
+        self.int_dict = new_dict
+    def set_proteins(self, new_proteins):
+        self.proteins = new_proteins
+    
+    def get_int_list(self):
+        return self.int_list
+    def get_int_dict(self):
+        return self.int_dict
+    def get_proteins(self):
+        return self.proteins
+
+
+    #other methods
+    def count_vertices(self):
+        return len(self.get_int_dict())
+
+    def count_edges(self):
+        return len(self.get_int_list())
+
+    #i'm not sure about that (filein is the same file used in the constructor, do we have to call it again here ?)
+    """ def write_interaction_file_from_list(interactions_list, fileout):
+        with open(fileout, "w") as handle:
+            handle.write(str(len(interactions_list)) + "\n")
+            for inter in interactions_list:
+                handle.write(inter[0] + "\t" + inter[1] + "\n")
+    
+    def clean_interactome(filein, fileout):
+        with open(filein) as content:
+            interaction_list = list()
+            content.readline() #skip 1st line
+            for line in content.readlines():
+                split = re.split(SEP, line.rstrip())
+                if (split[1], split[0]) not in interaction_list and split[1] != split[0]:
+                    interaction_list.append(tuple(split))
+        
+        write_interaction_file_from_list(interaction_list, fileout) """
+
+    #degree methods
+    def get_degree(self, prot):
+        return len(self.get_int_dict()[prot])
+    
+    def get_max_degree(self):
+        max_degree = max(len(int_list) for int_list in self.get_int_dict().values())
+        return [prot for prot, int_list in self.get_int_dict().items() if len(int_list)==max_degree], \
+            max_degree
+
+    def get_ave_degree(self):
+        return sum(len(int_list) for int_list in self.get_int_dict().values()) / len(self.get_int_dict())
+
+    def count_degree(self, deg):
+        return sum(1 for prot in self.get_int_dict() if len(self.get_int_dict()[prot]) == deg)
+
+    def histogram_degree(self, dmin, dmax):
+        for i in range(dmin, dmax+1):
+            print(i, "*"*self.count_degree(i))
+
+    
 
 if __name__ == "__main__":
-    print(histogram_degree("bs2/projet_IPP/toy_example.txt", 1, 3))
+    #print(histogram_degree("bs2/projet_IPP/toy_example.txt", 1, 3))
     #start_time = time.time()
     #clean_interactome("bs2/projet_IPP/Human_HighQuality.txt", "bs2/projet_IPP/Human_HighQualityOut.txt")
     #print("--- %s seconds ---" % (time.time() - start_time))
+
+    interactome1 = Interactome("toy_example.txt")
+    print(interactome1.histogram_degree(1,3))
