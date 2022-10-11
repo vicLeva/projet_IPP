@@ -297,7 +297,7 @@ def histogram_degree(file, dmin, dmax):
 
 
 if __name__ == "__main__":
-    print(histogram_degree("bs2/projet_IPP/toy_example.txt", 1, 3))
+    print(histogram_degree("resources/toy_example.txt", 1, 3))
     #start_time = time.time()
     #clean_interactome("bs2/projet_IPP/Human_HighQuality.txt", "bs2/projet_IPP/Human_HighQualityOut.txt")
     #print("--- %s seconds ---" % (time.time() - start_time))
