@@ -1,7 +1,8 @@
 import re
 import numpy as np
-import time
-import os.path
+import random
+import networkx as nx
+import matplotlib.pyplot as plt
 
 
 SEP = ' |\t' #Separator = space or tab.
@@ -18,7 +19,33 @@ class Interactome:
         proteins (list): list of all the interactome proteins, in the order of the int_matrix
     """
     #3.2.3
-    def __init__(self, filename):
+    def __init__(self, filename=None, algo=None, proteins=None, proba=None):
+        if filename != None:
+            self.build_from_file(filename)
+        
+        else:
+            self.proteins = proteins
+            self.int_dict = dict([(prot, set()) for prot in proteins])
+            self.int_list = list()
+
+            if algo == "erdos_renyi":
+                self.build_from_random(proba)
+            elif algo == "scale_free":
+                self.build_from_scalefree()
+
+        #CONSTRUCT MAT
+        size = len(self.proteins)
+        self.int_matrix = np.zeros((size, size), dtype=int)
+
+        for x, y in self.int_list:
+            idx1 = self.proteins.index(x)
+            idx2 = self.proteins.index(y)
+            self.int_matrix[idx1, idx2] = 1
+            self.int_matrix[idx2, idx1] = 1
+
+
+
+    def build_from_file(self, filename):
         """Constructor, inits every attributes in 1 file read
         
         Args:
@@ -50,15 +77,34 @@ class Interactome:
                     self.proteins.append(split[1])
                     self.int_dict[split[1]] = {split[0]}
 
-        #CONSTRUCT MAT
-        size = len(self.proteins)
-        self.int_matrix = np.zeros((size, size), dtype=int)
+    
+    def build_from_random(self, q):
+        for prot1 in self.proteins:
+            for prot2 in self.proteins:
+                if prot1 == prot2: continue
 
-        for x, y in self.int_list:
-            idx1 = self.proteins.index(x)
-            idx2 = self.proteins.index(y)
-            self.int_matrix[idx1, idx2] = 1
-            self.int_matrix[idx2, idx1] = 1
+                if random.random() < q:
+                    self.int_list.append((prot1, prot2))
+                    self.int_dict[prot1].add(prot2)
+                    self.int_dict[prot2].add(prot1)
+
+
+    def build_from_scalefree(self):
+        #start with a 2 nodes clique
+        total_deg = 2
+        self.int_list.append((self.proteins[0], self.proteins[1]))
+        self.int_dict[self.proteins[0]].add(self.proteins[1])
+        self.int_dict[self.proteins[1]].add(self.proteins[0])
+
+        for i in range(2, len(self.proteins)):
+            for j in range(i):
+                # proba =  deg(proteins[j]) / sum(all degrees)
+                if random.random() < len(self.int_dict[self.proteins[j]]) / total_deg:
+                    self.int_list.append((self.proteins[i], self.proteins[j]))
+                    self.int_dict[self.proteins[i]].add(self.proteins[j])
+                    self.int_dict[self.proteins[j]].add(self.proteins[i])
+                    total_deg += 2
+
 
 
     #SETTERS
@@ -76,6 +122,15 @@ class Interactome:
         return self.int_dict
     def get_proteins(self):
         return self.proteins
+
+    def display(self):
+        G = nx.DiGraph()
+        G.add_edges_from(self.int_list)
+        pos = nx.spring_layout(G)
+        nx.draw_networkx_nodes(G, pos, cmap=plt.get_cmap('jet'), node_size = 500)
+        nx.draw_networkx_labels(G, pos)
+        nx.draw_networkx_edges(G, pos, arrows=False)
+        plt.show()
 
     #3.2.4
     #MEMBER METHODS
@@ -194,6 +249,15 @@ if __name__ == "__main__":
     #clean_interactome("bs2/projet_IPP/Human_HighQuality.txt", "bs2/projet_IPP/Human_HighQualityOut.txt")
     #print("--- %s seconds ---" % (time.time() - start_time))
 
-    interactome1 = Interactome("resources/toy_example.txt")
+    interactome1 = Interactome(filename="resources/toy_example.txt")
     interactome1.histogram_degree(1,3)
     print(interactome1.clustering('B'))
+
+    print()
+    interactome2 = Interactome(algo="erdos_renyi", proteins=["A", "B", "C", "D", "E", "F"], proba=0.4)
+    interactome2.histogram_degree(1,5)
+    interactome2.display()
+    
+    print()
+    interactome3 = Interactome(algo="scale_free", proteins=["A", "B", "C", "D", "E", "F"])
+    interactome3.histogram_degree(1,5)
