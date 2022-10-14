@@ -20,6 +20,16 @@ class Interactome:
     """
     #3.2.3
     def __init__(self, filename=None, algo=None, proteins=None, proba=None):
+        """Constructor, inits every attributes in 1 file read, in case of filename, 
+        else with an algorithm to generate the graph
+        
+        Args:
+            filename (str): The file path (must be a clean file !)
+            algo (str): The generation graph algorithm {"erdos_renyi", "scale_free"}
+            proteins (list): The nodes of the generated graph
+            proba (float): In case of "erdos_renyi", the proba for each edge to be present
+        """
+
         if filename != None:
             self.build_from_file(filename)
         
@@ -46,7 +56,7 @@ class Interactome:
 
 
     def build_from_file(self, filename):
-        """Constructor, inits every attributes in 1 file read
+        """Constructor side method, inits every attributes in 1 file read
         
         Args:
             filename (str): The file path (must be a clean file !)
@@ -79,6 +89,11 @@ class Interactome:
 
     
     def build_from_random(self, q):
+        """Constructor side method, inits every attributes while generating a random graph with erdos_renyi algorithm
+        
+        Args:
+            q (float): The proba for each edge to be present
+        """
         for prot1 in self.proteins:
             for prot2 in self.proteins:
                 if prot1 == prot2: continue
@@ -90,6 +105,9 @@ class Interactome:
 
 
     def build_from_scalefree(self):
+        """
+        Constructor side method, inits every attributes while generating a random graph with erdos_renyi algorithm
+        """
         #start with a 2 nodes clique
         total_deg = 2
         self.int_list.append((self.proteins[0], self.proteins[1]))
@@ -124,6 +142,9 @@ class Interactome:
         return self.proteins
 
     def display(self):
+        """
+        Plots a graphic representation of the graph (graph must be ~small)
+        """
         G = nx.DiGraph()
         G.add_edges_from(self.int_list)
         pos = nx.spring_layout(G)
@@ -249,14 +270,15 @@ if __name__ == "__main__":
     #clean_interactome("bs2/projet_IPP/Human_HighQuality.txt", "bs2/projet_IPP/Human_HighQualityOut.txt")
     #print("--- %s seconds ---" % (time.time() - start_time))
 
-    interactome1 = Interactome(filename="resources/toy_example.txt")
+    interactome1 = Interactome(filename="resources/Human_HighQuality.txt")
     interactome1.histogram_degree(1,3)
-    print(interactome1.clustering('B'))
+    #print(interactome1.clustering('B'))
+    interactome1.display()
 
     print()
     interactome2 = Interactome(algo="erdos_renyi", proteins=["A", "B", "C", "D", "E", "F"], proba=0.4)
     interactome2.histogram_degree(1,5)
-    interactome2.display()
+    
     
     print()
     interactome3 = Interactome(algo="scale_free", proteins=["A", "B", "C", "D", "E", "F"])
