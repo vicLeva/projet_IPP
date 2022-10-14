@@ -69,6 +69,7 @@ class Test_Interactome_histogram_degree:
     def test_usual_file(self):
         assert interactome_test.histogram_degree(1,3) == None
 
+
 class Test_Interactome_density:
     def test_usual_file(self):
         assert interactome_test.density() == 0.6
@@ -77,6 +78,17 @@ class Test_Interactome_density:
 class Test_Interactome_clustering:
     def test_usual_file(self):
         assert interactome_test.clustering("A") == 1
+
+
+class Test_Interactome_browse_graph:
+    def test_usual_file(self):
+        assert interactome_test.browse_graph("A") == ["A","B","C","D","E"]
+
+
+class Test_Interactome_connect_comp:
+    def test_usual_file(self):
+        assert interactome_test.connect_comp() == {"A":1,"B":1,"C":1,"D":1,"E":1}
+
 
 
 os.remove("/tmp/testFile")

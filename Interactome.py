@@ -260,7 +260,56 @@ class Interactome:
         return sum_edges / (nb_neigh * (nb_neigh-1))
 
 
+    #4
+    def browse_graph(self, begin_prot):
+        """Browse the graph to return the connected component to which begin_prot belong
+
+        Args:
+            begin_prot (str): the protein with which the function will start the path
+
+        Returns:
+            the list of all proteins in the connected component of begin_prot
+        """
+        visited = []
+        queue = [begin_prot]
+
+        while len(queue) != 0:
+            #browse the neighbours of the first protein of the queue with the dictionnary
+            for neighbour in self.get_int_dict()[queue[0]]:
+                #add the neighbours to the end of the queue if it is the first time ecountering them
+                if neighbour in queue or neighbour in visited:
+                    continue
+                queue.append(neighbour)
+
+            #removing first protein of the queue and adding it to the final list
+            visited.append(queue[0])
+            queue.remove(queue[0])
         
+        return visited
+
+
+    def connect_comp(self):
+        """Finds to which connected component belongs each protein of the graph
+
+        Returns:
+            a dictionnary with all proteins of the graph in keys, associated to their connected component id in values
+        """
+        #dictionnary with all proteins starting in the connected component group "-1"
+        connect_comp = {}
+        for prot in self.get_proteins():
+            connect_comp[prot] = -1
+        
+        #for each protein (starting with the first of the list) compute their connected component if they are still in the "-1" group
+        id = 1
+        for prot in self.get_proteins():
+            if connect_comp[prot] == -1:
+                #change the group of each protein of the connected component in the dictionnary
+                for prot_connecte in self.browse_graph(prot):
+                    connect_comp[prot_connecte] = id
+                #go to the next connected component
+                id +=1
+                
+        return connect_comp
 
 
 
@@ -273,7 +322,8 @@ if __name__ == "__main__":
     interactome1 = Interactome(filename="resources/Human_HighQuality.txt")
     interactome1.histogram_degree(1,3)
     #print(interactome1.clustering('B'))
-    interactome1.display()
+    #interactome1.display()
+    print(interactome1.connect_comp())
 
     print()
     interactome2 = Interactome(algo="erdos_renyi", proteins=["A", "B", "C", "D", "E", "F"], proba=0.4)
@@ -283,3 +333,10 @@ if __name__ == "__main__":
     print()
     interactome3 = Interactome(algo="scale_free", proteins=["A", "B", "C", "D", "E", "F"])
     interactome3.histogram_degree(1,5)
+
+    print()
+    interactome4 = Interactome(filename="resources/connexe_example.txt")
+    interactome4.display()
+    print(interactome4.get_int_dict())
+    print(interactome4.browse_graph("E"))
+    print(interactome4.connect_comp())
