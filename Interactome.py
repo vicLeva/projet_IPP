@@ -3,6 +3,7 @@ import numpy as np
 import random
 import networkx as nx
 import matplotlib.pyplot as plt
+from sympy import true
 
 
 SEP = ' |\t' #Separator = space or tab.
@@ -115,13 +116,16 @@ class Interactome:
         self.int_dict[self.proteins[1]].add(self.proteins[0])
 
         for i in range(2, len(self.proteins)):
+            nb_new_interaction = 0
             for j in range(i):
                 # proba =  deg(proteins[j]) / sum(all degrees)
                 if random.random() < len(self.int_dict[self.proteins[j]]) / total_deg:
                     self.int_list.append((self.proteins[i], self.proteins[j]))
                     self.int_dict[self.proteins[i]].add(self.proteins[j])
                     self.int_dict[self.proteins[j]].add(self.proteins[i])
-                    total_deg += 2
+                    nb_new_interaction += 1
+            total_deg += nb_new_interaction * 2
+            
 
 
 
@@ -145,12 +149,14 @@ class Interactome:
         """
         Plots a graphic representation of the graph (graph must be ~small)
         """
-        G = nx.DiGraph()
-        G.add_edges_from(self.int_list)
+        G = nx.Graph(self.int_dict)
+        """ G.add_edges_from(self.int_list)
         pos = nx.spring_layout(G)
         nx.draw_networkx_nodes(G, pos, cmap=plt.get_cmap('jet'), node_size = 500)
         nx.draw_networkx_labels(G, pos)
-        nx.draw_networkx_edges(G, pos, arrows=False)
+        nx.draw_networkx_edges(G, pos, arrows=False) """
+        nx.draw(G, with_labels=True)
+        plt.draw()
         plt.show()
 
     #3.2.4
@@ -277,9 +283,8 @@ class Interactome:
             #browse the neighbours of the first protein of the queue with the dictionnary
             for neighbour in self.get_int_dict()[queue[0]]:
                 #add the neighbours to the end of the queue if it is the first time ecountering them
-                if neighbour in queue or neighbour in visited:
-                    continue
-                queue.append(neighbour)
+                if neighbour not in queue and neighbour not in visited:
+                    queue.append(neighbour)
 
             #removing first protein of the queue and adding it to the final list
             visited.append(queue[0])
@@ -319,11 +324,11 @@ if __name__ == "__main__":
     #clean_interactome("bs2/projet_IPP/Human_HighQuality.txt", "bs2/projet_IPP/Human_HighQualityOut.txt")
     #print("--- %s seconds ---" % (time.time() - start_time))
 
-    interactome1 = Interactome(filename="resources/Human_HighQuality.txt")
-    interactome1.histogram_degree(1,3)
+    #interactome1 = Interactome(filename="resources/Human_HighQuality.txt")
+    #interactome1.histogram_degree(1,3)
     #print(interactome1.clustering('B'))
     #interactome1.display()
-    print(interactome1.connect_comp())
+    #print(interactome1.connect_comp())
 
     print()
     interactome2 = Interactome(algo="erdos_renyi", proteins=["A", "B", "C", "D", "E", "F"], proba=0.4)
@@ -333,6 +338,7 @@ if __name__ == "__main__":
     print()
     interactome3 = Interactome(algo="scale_free", proteins=["A", "B", "C", "D", "E", "F"])
     interactome3.histogram_degree(1,5)
+    interactome3.display()
 
     print()
     interactome4 = Interactome(filename="resources/connexe_example.txt")
