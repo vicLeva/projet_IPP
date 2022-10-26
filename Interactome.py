@@ -238,6 +238,7 @@ class Interactome:
         edges = self.count_edges()
         return 2*edges / (verts*(verts - 1))
 
+    #3.3.2
     def clustering(self, prot):
         """Computes the clustering coefficient of a protein
         Uses the 2n(prot) / k(k-1) formula with
@@ -264,9 +265,8 @@ class Interactome:
         # sum_edges and not 2*sum_edges because we counted every edge twice
         return sum_edges / (nb_neigh * (nb_neigh-1))
 
-
-    #4
-    def browse_graph(self, begin_prot):
+    #5.1.4
+    def extract_CC(self, prot):
         """Browse the graph to return the connected component to which begin_prot belong
 
         Args:
@@ -275,48 +275,6 @@ class Interactome:
         Returns:
             the list of all proteins in the connected component of begin_prot
         """
-        visited = []
-        queue = [begin_prot]
-
-        while len(queue) != 0:
-            #browse the neighbours of the first protein of the queue with the dictionnary
-            for neighbour in self.get_int_dict()[queue[0]]:
-                #add the neighbours to the end of the queue if it is the first time ecountering them
-                if neighbour not in queue and neighbour not in visited:
-                    queue.append(neighbour)
-
-            #removing first protein of the queue and adding it to the final list
-            visited.append(queue[0])
-            queue.remove(queue[0])
-        
-        return visited
-
-
-    def connect_comp(self):
-        """Finds to which connected component belongs each protein of the graph
-
-        Returns:
-            a dictionnary with all proteins of the graph in keys, associated to their connected component id in values
-        """
-        #dictionnary with all proteins starting in the connected component group "-1"
-        connect_comp = {}
-        for prot in self.get_proteins():
-            connect_comp[prot] = -1
-        
-        #for each protein (starting with the first of the list) compute their connected component if they are still in the "-1" group
-        id = 1
-        for prot in self.get_proteins():
-            if connect_comp[prot] == -1:
-                #change the group of each protein of the connected component in the dictionnary
-                for prot_connecte in self.browse_graph(prot):
-                    connect_comp[prot_connecte] = id
-                #go to the next connected component
-                id +=1
-                
-        return connect_comp
-
-    
-    def extract_CC(self, prot):
         visited = []
         queue = [prot] #a list used as a queue
 
@@ -332,8 +290,13 @@ class Interactome:
         
         return visited
 
-
+    #5.1.5
     def compute_CC(self):
+        """Finds to which connected component belongs each protein of the graph
+
+        Returns:
+            a dictionnary with all proteins of the graph in keys, associated to their connected component id in values
+        """
         lcc = [-1] * len(self.proteins)
         
         #for each protein (starting with the first of the list) compute their connected component if they are still in the "-1" group
@@ -348,7 +311,7 @@ class Interactome:
                 
         return lcc
 
-    
+    #5.1.2
     def count_CC(self):
         lcc = self.compute_CC()
         nb_CC = max(lcc)
@@ -357,7 +320,7 @@ class Interactome:
             CC_sizes_list[id_CC-1] += 1
         return nb_CC, CC_sizes_list
 
-
+    #5.1.3
     def write_CC(self):
         content = list(map(str, self.count_CC()[1]))
         for id_prot, id_CC in enumerate(self.compute_CC()):
