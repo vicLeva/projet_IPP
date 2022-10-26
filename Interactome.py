@@ -3,7 +3,6 @@ import numpy as np
 import random
 import networkx as nx
 import matplotlib.pyplot as plt
-from sympy import true
 
 
 SEP = ' |\t' #Separator = space or tab.
@@ -316,6 +315,59 @@ class Interactome:
                 
         return connect_comp
 
+    
+    def extract_CC(self, prot):
+        visited = []
+        queue = [prot] #a list used as a queue
+
+        while len(queue) != 0:
+            #browse the neighbours of the first protein of the queue with the dictionnary
+            for neighbour in self.int_dict[queue[0]]:
+                #add the neighbours to the end of the queue if it is the first time ecountering them
+                if neighbour not in queue and neighbour not in visited:
+                    queue.append(neighbour)
+
+            #removing first protein of the queue and adding it to the final list
+            visited.append(queue.pop(0))
+        
+        return visited
+
+
+    def compute_CC(self):
+        lcc = [-1] * len(self.proteins)
+        
+        #for each protein (starting with the first of the list) compute their connected component if they are still in the "-1" group
+        id_CC = 1
+        for index, prot in enumerate(self.proteins):
+            if lcc[index] == -1:
+                #change the group of each protein of the connected component in the dictionnary
+                for prot_connected in self.extract_CC(prot):
+                    lcc[self.proteins.index(prot_connected)] = id_CC
+                #go to the next connected component
+                id_CC +=1
+                
+        return lcc
+
+    
+    def count_CC(self):
+        lcc = self.compute_CC()
+        nb_CC = max(lcc)
+        CC_sizes_list = [0] * nb_CC
+        for id_CC in lcc:
+            CC_sizes_list[id_CC-1] += 1
+        return nb_CC, CC_sizes_list
+
+
+    def write_CC(self):
+        content = list(map(str, self.count_CC()[1]))
+        for id_prot, id_CC in enumerate(self.compute_CC()):
+            content[id_CC-1] += str(self.proteins[id_prot])
+
+        with open("CCs.txt", "w") as file:
+            file.write('\n'.join(content))
+
+
+
 
 
 if __name__ == "__main__":
@@ -338,11 +390,13 @@ if __name__ == "__main__":
     print()
     interactome3 = Interactome(algo="scale_free", proteins=["A", "B", "C", "D", "E", "F"])
     interactome3.histogram_degree(1,5)
-    interactome3.display()
+    #interactome3.display()
 
     print()
     interactome4 = Interactome(filename="resources/connexe_example.txt")
     interactome4.display()
-    print(interactome4.get_int_dict())
-    print(interactome4.browse_graph("E"))
+    print(interactome4.extract_CC("D"))
     print(interactome4.connect_comp())
+    print(interactome4.write_CC())
+
+
