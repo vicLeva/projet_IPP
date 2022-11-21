@@ -267,13 +267,13 @@ class Interactome:
 
     #5.1.4
     def extract_CC(self, prot):
-        """Browse the graph to return the connected component to which begin_prot belong
+        """Return all the proteins of the connected component to which prot belong
 
         Args:
-            begin_prot (str): the protein with which the function will start the path
+            prot (str): the protein with which the function will start the path
 
         Returns:
-            the list of all proteins in the connected component of begin_prot
+            the list of all proteins in the connected component of prot
         """
         visited = []
         queue = [prot] #a list used as a queue
@@ -295,7 +295,7 @@ class Interactome:
         """Finds to which connected component belongs each protein of the graph
 
         Returns:
-            a dictionnary with all proteins of the graph in keys, associated to their connected component id in values
+            a list in which each element correspond to the connected component that the protein with the same id in the list of protein belong
         """
         lcc = [-1] * len(self.proteins)
         
@@ -311,8 +311,15 @@ class Interactome:
                 
         return lcc
 
+
+
     #5.1.2
     def count_CC(self):
+        """Finds the number of connected component in the graph, and how many proteins are in each of them
+
+        Returns:
+            The number of connected component, and a list of their sizes
+        """
         lcc = self.compute_CC()
         nb_CC = max(lcc)
         CC_sizes_list = [0] * nb_CC
@@ -322,6 +329,9 @@ class Interactome:
 
     #5.1.3
     def write_CC(self):
+        """Write a file containing a line for each connected component.
+        Each line contains the size of the connected component as the first character, and then the list of their proteins
+        """
         content = list(map(str, self.count_CC()[1]))
         for id_prot, id_CC in enumerate(self.compute_CC()):
             content[id_CC-1] += str(self.proteins[id_prot])
