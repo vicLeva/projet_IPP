@@ -3,7 +3,7 @@ import numpy as np
 import random
 import networkx as nx
 import matplotlib.pyplot as plt
-
+import scipy
 
 SEP = ' |\t' #Separator = space or tab.
 
@@ -94,14 +94,13 @@ class Interactome:
         Args:
             q (float): The proba for each edge to be present
         """
-        for prot1 in self.proteins:
-            for prot2 in self.proteins:
-                if prot1 == prot2: continue
-
+        for i in range(len(self.proteins)):
+            for j in range(i+1, len(self.proteins)):
+                if self.proteins[i] == self.proteins[j]: continue
                 if random.random() < q:
-                    self.int_list.append((prot1, prot2))
-                    self.int_dict[prot1].add(prot2)
-                    self.int_dict[prot2].add(prot1)
+                    self.int_list.append((self.proteins[i], self.proteins[j]))
+                    self.int_dict[self.proteins[i]].add(self.proteins[j])
+                    self.int_dict[self.proteins[j]].add(self.proteins[i])
 
 
     def build_from_scalefree(self):
@@ -265,6 +264,34 @@ class Interactome:
         # sum_edges and not 2*sum_edges because we counted every edge twice
         return sum_edges / (nb_neigh * (nb_neigh-1))
 
+
+
+    #5.1.2
+    def count_CC(self):
+        """Finds the number of connected component in the graph, and how many proteins are in each of them
+
+        Returns:
+            The number of connected component, and a list of their sizes
+        """
+        lcc = self.compute_CC()
+        nb_CC = max(lcc)
+        CC_sizes_list = [0] * nb_CC
+        for id_CC in lcc:
+            CC_sizes_list[id_CC-1] += 1
+        return nb_CC, CC_sizes_list
+
+    #5.1.3
+    def write_CC(self):
+        """Write a file containing a line for each connected component.
+        Each line contains the size of the connected component as the first character, and then the list of their proteins
+        """
+        content = list(map(str, self.count_CC()[1]))
+        for id_prot, id_CC in enumerate(self.compute_CC()):
+            content[id_CC-1] += str(self.proteins[id_prot])
+
+        with open("CCs.txt", "w") as file:
+            file.write('\n'.join(content))
+
     #5.1.4
     def extract_CC(self, prot):
         """Return all the proteins of the connected component to which prot belong
@@ -312,37 +339,6 @@ class Interactome:
         return lcc
 
 
-
-    #5.1.2
-    def count_CC(self):
-        """Finds the number of connected component in the graph, and how many proteins are in each of them
-
-        Returns:
-            The number of connected component, and a list of their sizes
-        """
-        lcc = self.compute_CC()
-        nb_CC = max(lcc)
-        CC_sizes_list = [0] * nb_CC
-        for id_CC in lcc:
-            CC_sizes_list[id_CC-1] += 1
-        return nb_CC, CC_sizes_list
-
-    #5.1.3
-    def write_CC(self):
-        """Write a file containing a line for each connected component.
-        Each line contains the size of the connected component as the first character, and then the list of their proteins
-        """
-        content = list(map(str, self.count_CC()[1]))
-        for id_prot, id_CC in enumerate(self.compute_CC()):
-            content[id_CC-1] += str(self.proteins[id_prot])
-
-        with open("CCs.txt", "w") as file:
-            file.write('\n'.join(content))
-
-
-
-
-
 if __name__ == "__main__":
     #print(histogram_degree("bs2/projet_IPP/toy_example.txt", 1, 3))
     #start_time = time.time()
@@ -356,10 +352,13 @@ if __name__ == "__main__":
     #print(interactome1.connect_comp())
 
     print()
-    interactome2 = Interactome(algo="erdos_renyi", proteins=["A", "B", "C", "D", "E", "F"], proba=0.4)
+    interactome2 = Interactome(algo="erdos_renyi", proteins=["A", "B", "C", "D", "E"], proba=0.1)
     interactome2.histogram_degree(1,5)
-    
-    
+    interactome2.display()
+    print(interactome2.count_CC())
+    print(interactome2.compute_CC())
+
+    """
     print()
     interactome3 = Interactome(algo="scale_free", proteins=["A", "B", "C", "D", "E", "F"])
     interactome3.histogram_degree(1,5)
@@ -367,9 +366,8 @@ if __name__ == "__main__":
 
     print()
     interactome4 = Interactome(filename="resources/connexe_example.txt")
-    interactome4.display()
+    #interactome4.display()
     print(interactome4.extract_CC("D"))
-    print(interactome4.connect_comp())
+    #print(interactome4.connect_comp())
     print(interactome4.write_CC())
-
-
+    """
