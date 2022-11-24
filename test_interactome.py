@@ -111,9 +111,14 @@ class Test_Interactome_build_from_random: #on vérifie la moyenne = la clique * 
         for i in range(100000):
             interactome_random = interactome.Interactome(algo="erdos_renyi", proteins=proteins, proba=proba)
             edges_counts[i] = interactome_random.count_edges()/(len_prot*(len_prot-1)/2) #diviser par la clique ((n*n-1) /2
-        """ plt.hist(edges_counts, bins="auto")
-        plt.show() """
+        
         assert abs(sum(edges_counts)/len(edges_counts) - proba) < 0.01 
+        plt.hist(edges_counts, bins="auto")
+        plt.title(f"Erdos-renyi edges distribution (p={proba})")
+        plt.xlabel('nb edges / nb edges in clique')
+        plt.ylabel('nb occurs')
+        plt.show()
+        
 
     def test_degree_distribution(self):
         proba = 0.3
@@ -123,17 +128,28 @@ class Test_Interactome_build_from_random: #on vérifie la moyenne = la clique * 
         for i in range(50000):
             interactome_random = interactome.Interactome(algo="erdos_renyi", proteins = proteins, proba=proba)
             degree_counts[i] = interactome_random.get_ave_degree() 
-        """ plt.hist(degree_counts, bins="auto")
-        plt.show() """
+
         assert abs(sum(degree_counts)/len(degree_counts) - (max_degree*proba)) < 0.01
+        plt.hist(degree_counts, bins="auto")
+        plt.title(f"Erdos-renyi degree distribution (p={proba})")
+        plt.xlabel('degree')
+        plt.ylabel('nb occurs')
+        plt.show()
+        
         
 class Test_Interactome_build_from_scale_free:
     def test_degree_distribution(self):
         n = 5000
         interactome_random = interactome.Interactome(algo="scale_free", proteins = interactome.vertices_generator(n))
+
         plt.plot(np.log10(range(5000)), np.log10([interactome_random.count_degree(i) for i in range(n)]), "bo")
+        
+        plt.title(f"barabasi-albrt degree distribution (n nodes={n})")
+        plt.xlabel('log degree')
+        plt.ylabel('log P(degree)')
         plt.show()
 
+        
 class Test_Interactome_count_CC:
     def test_usual_file(self):
         assert interactome_test.count_CC() == (1, [5])
