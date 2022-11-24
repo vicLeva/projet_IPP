@@ -1,10 +1,9 @@
 import pytest
 import os
 import numpy as np
-
-import scipy
-import random
+import math
 import matplotlib.pyplot as plt
+import itertools
 
 interactome = pytest.importorskip("Interactome")
 
@@ -44,10 +43,9 @@ class Test_Interactome_constructor:
         assert interactomeCC_test.get_proteins() == ["A", "B", "C", "D", "E", "F", "G"]
 
     #MATRIX
-    #TypeError: 'numpy.ndarray' object is not callable
-    """ def test_usual_file_matrix_size(self):
-        assert np.size(interactome_test.int_matrix()[0]) == 9
-    """
+    def test_usual_file_matrix_size(self):
+        assert interactome_test.int_matrix.shape == (5,5)
+    
 
 
 class Test_Interactome_count_vertices:
@@ -105,17 +103,36 @@ class Test_Interactome_clustering:
 
 
 class Test_Interactome_build_from_random: #on vérifie la moyenne = la clique * la proba ET retrouver la proba sur la normalité
-    def test_with_proba(self):
+    def test_edges_distribution(self):
+        proba = 0.3
+        proteins = ["A","B","C","D","E","F","G","H","I","J"]
+        len_prot = len(proteins)
         edges_counts = [0] * 100000
         for i in range(100000):
-            interactome_random = interactome.Interactome(algo="erdos_renyi", proteins = ["A","B","C","D","E","F","G","H","I","J"], proba=0.3)
-            edges_counts[i] = interactome_random.count_edges()/45 #diviser par la clique ((n*n-1) /2)
-        #assert scipy.stats.shapiro(edges_counts).pvalue > 0.05
-        plt.hist(edges_counts, edgecolor='black', bins=50)
+            interactome_random = interactome.Interactome(algo="erdos_renyi", proteins=proteins, proba=proba)
+            edges_counts[i] = interactome_random.count_edges()/(len_prot*(len_prot-1)/2) #diviser par la clique ((n*n-1) /2
+        """ plt.hist(edges_counts, bins="auto")
+        plt.show() """
+        assert abs(sum(edges_counts)/len(edges_counts) - proba) < 0.01 
+
+    def test_degree_distribution(self):
+        proba = 0.3
+        proteins = ["A","B","C","D","E","F","G","H","I","J"]
+        max_degree = len(proteins)-1
+        degree_counts = [0] * 50000
+        for i in range(50000):
+            interactome_random = interactome.Interactome(algo="erdos_renyi", proteins = proteins, proba=proba)
+            degree_counts[i] = interactome_random.get_ave_degree() 
+        """ plt.hist(degree_counts, bins="auto")
+        plt.show() """
+        assert abs(sum(degree_counts)/len(degree_counts) - (max_degree*proba)) < 0.01
+        
+class Test_Interactome_build_from_scale_free:
+    def test_degree_distribution(self):
+        n = 5000
+        interactome_random = interactome.Interactome(algo="scale_free", proteins = interactome.vertices_generator(n))
+        plt.plot(np.log10(range(5000)), np.log10([interactome_random.count_degree(i) for i in range(n)]), "bo")
         plt.show()
-        assert sum(edges_counts)/len(edges_counts) < 0.3 + 0.01 or sum(edges_counts)/len(edges_counts) > 0.3 - 0.01
-
-
 
 class Test_Interactome_count_CC:
     def test_usual_file(self):
@@ -130,8 +147,8 @@ class Test_Interactome_write_CC:
 
 class Test_Interactome_extract_CC:
     def test_usual_file(self):
-        assert interactome_test.extract_CC("A") == ["A","C","B","E","D"]
-        assert interactomeCC_test.extract_CC("A") == ["A","C","B"]
+        assert set(interactome_test.extract_CC("A")) == {"A","C","B","E","D"}
+        assert set(interactomeCC_test.extract_CC("A")) == {"A","C","B"}
 
 class Test_Interactome_compute_CC:
     def test_usual_file(self):

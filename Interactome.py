@@ -3,9 +3,11 @@ import numpy as np
 import random
 import networkx as nx
 import matplotlib.pyplot as plt
-import scipy
 
 SEP = ' |\t' #Separator = space or tab.
+
+def vertices_generator(n):
+    return [str(i) for i in range(n)]
 
 
 class Interactome:
@@ -96,12 +98,10 @@ class Interactome:
         """
         for i in range(len(self.proteins)):
             for j in range(i+1, len(self.proteins)):
-                if self.proteins[i] == self.proteins[j]: continue
                 if random.random() < q:
                     self.int_list.append((self.proteins[i], self.proteins[j]))
                     self.int_dict[self.proteins[i]].add(self.proteins[j])
                     self.int_dict[self.proteins[j]].add(self.proteins[i])
-
 
     def build_from_scalefree(self):
         """
@@ -351,19 +351,24 @@ if __name__ == "__main__":
     #interactome1.display()
     #print(interactome1.connect_comp())
 
-    print()
-    interactome2 = Interactome(algo="erdos_renyi", proteins=["A", "B", "C", "D", "E"], proba=0.1)
+    """ print()
+    interactome2 = Interactome(algo="erdos_renyi", proteins=["A", "B", "C", "D", "E"], proba=0.2)
     interactome2.histogram_degree(1,5)
     interactome2.display()
     print(interactome2.count_CC())
-    print(interactome2.compute_CC())
+    print(interactome2.compute_CC()) """
+
+    interactome_toy = Interactome("resources/toy_example.txt")
+    print(interactome_toy.int_matrix.shape)
+    print(interactome_toy.count_CC())
+
+    
+    """ print()
+    interactome3 = Interactome(algo="scale_free", proteins=vertices_generator(100))
+    interactome3.histogram_degree(1,5)
+    interactome3.display() """
 
     """
-    print()
-    interactome3 = Interactome(algo="scale_free", proteins=["A", "B", "C", "D", "E", "F"])
-    interactome3.histogram_degree(1,5)
-    #interactome3.display()
-
     print()
     interactome4 = Interactome(filename="resources/connexe_example.txt")
     #interactome4.display()
