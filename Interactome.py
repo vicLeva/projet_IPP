@@ -245,10 +245,10 @@ class Interactome:
         k = number of neighbours
 
         Args:
-            prot (str): the protein of which we want the clustering coef
+            prot (str): the protein of which we want the clustering coefficient
  
         Returns:
-            the density of the interactome
+            the local clustering coefficient of a protein
         """
         neighbours = self.int_dict[prot]
         nb_neigh = len(neighbours)
@@ -287,7 +287,8 @@ class Interactome:
         """
         content = list(map(str, self.count_CC()[1]))
         for id_prot, id_CC in enumerate(self.compute_CC()):
-            content[id_CC-1] += str(self.proteins[id_prot])
+            content[id_CC-1] += ";".join(self.proteins[id_prot])
+            print(";".join(self.proteins[id_prot]))
 
         with open("CCs.txt", "w") as file:
             file.write('\n'.join(content))
