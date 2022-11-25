@@ -287,8 +287,7 @@ class Interactome:
         """
         content = list(map(str, self.count_CC()[1]))
         for id_prot, id_CC in enumerate(self.compute_CC()):
-            content[id_CC-1] += ";".join(self.proteins[id_prot])
-            print(";".join(self.proteins[id_prot]))
+            content[id_CC-1] += "\t" + str(self.proteins[id_prot])
 
         with open("CCs.txt", "w") as file:
             file.write('\n'.join(content))
