@@ -340,39 +340,33 @@ class Interactome:
 
 
 if __name__ == "__main__":
-    #print(histogram_degree("bs2/projet_IPP/toy_example.txt", 1, 3))
-    #start_time = time.time()
-    #clean_interactome("bs2/projet_IPP/Human_HighQuality.txt", "bs2/projet_IPP/Human_HighQualityOut.txt")
-    #print("--- %s seconds ---" % (time.time() - start_time))
+    #Constructor of Interactome how to use:
+    #from file : Interactome(filename="filename")
+    #from erdos-renyi gen. graph : Interactome(algo="erdos_renyi", proteins=proteins_list, proba=q)
+    #from barabasi-albert gen. graph : Interactome(algo="scale_free", proteins=proteins_list)
 
-    #interactome1 = Interactome(filename="resources/Human_HighQuality.txt")
-    #interactome1.histogram_degree(1,3)
-    #print(interactome1.clustering('B'))
-    #interactome1.display()
-    #print(interactome1.connect_comp())
-
-    """ print()
-    interactome2 = Interactome(algo="erdos_renyi", proteins=["A", "B", "C", "D", "E"], proba=0.2)
-    interactome2.histogram_degree(1,5)
-    interactome2.display()
-    print(interactome2.count_CC())
-    print(interactome2.compute_CC()) """
-
-    interactome_toy = Interactome("resources/toy_example.txt")
-    print(interactome_toy.int_matrix.shape)
-    print(interactome_toy.count_CC())
-
-    
-    """ print()
-    interactome3 = Interactome(algo="scale_free", proteins=vertices_generator(100))
-    interactome3.histogram_degree(1,5)
-    interactome3.display() """
-
+    #example of Human_HighQuality.txt with basic functions
     """
-    print()
-    interactome4 = Interactome(filename="resources/connexe_example.txt")
-    #interactome4.display()
-    print(interactome4.extract_CC("D"))
-    #print(interactome4.connect_comp())
-    print(interactome4.write_CC())
+    interactome_human = Interactome(filename="resources/Human_HighQuality.txt")
+    print(interactome_human.count_vertices(), "vertices")
+    print(interactome_human.count_edges(), "edges")
+    print(f"max degree: {interactome_human.get_max_degree()}")
+    print(f"average degree: {interactome_human.get_ave_degree()}")
+    print(f"density: {interactome_human.density()}")
+    print(f"clustering coef of ATX1_HUMAN: {interactome_human.clustering('ATX1_HUMAN')}")
+    """
+
+    #example of erdos-renyi with connected component functions
+    """
+    interactome_random = Interactome(algo="erdos_renyi", proteins=list(map(chr, range(65, 90))), proba=0.1) #proteins = ["A"..."Z"]
+    interactome_random.display()
+    print(f"Il y a {interactome_random.count_CC()[0]} composantes connexes différentes. Liste des nb de sommets dans chaque: {interactome_random.count_CC()[1]}")
+    interactome_random.write_CC()
+    """
+
+    #example of barabasi-albert with hist degree
+    """
+    interactome_scalefree = Interactome(algo="scale_free", proteins=vertices_generator(20))
+    interactome_scalefree.display()
+    interactome_scalefree.histogram_degree(1, 20)
     """
