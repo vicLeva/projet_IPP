@@ -5,7 +5,7 @@ import math
 import matplotlib.pyplot as plt
 import itertools
 
-interactome = pytest.importorskip("Interactome")
+interactome = pytest.importorskip("interactome")
 
 def write_example(filename):
     with open(filename, "w") as file:
